@@ -7,7 +7,8 @@ our @EXPORT_OK = ( 'notify' );
 
 our $VERSION;
 
-my $GROWL_COMMAND = "/usr/local/bin/growlnotify";
+#my $GROWL_COMMAND = "/usr/local/bin/growlnotify";
+my $GROWL_COMMAND = "growlnotify";
 
 #_* Libraries
 
@@ -133,35 +134,69 @@ sub notify {
     # skip notifications with the 'quiet' flag set
     return if $options->{quiet};
 
+    my $host = $options->{host} || $ENV{GROWL_HOST} || 'localhost';
+
+    #
+    # setup the option flags based on OS
+    #
+    my $cl_opts = undef;
+    if ( $^O =~ /Win/ ) {
+        $cl_opts->{host} = '/host:' . $host;
+        $cl_opts->{subject} = '"' . $options->{subject} . '"';
+        if ($options->{image}) {
+            $cl_opts->{image} = '/i:"' . $options->{image} . '"';
+        }
+        if ($options->{name}) {        
+            $cl_opts->{name} = '/a:"' . $options->{name} . '" /r:"General Notification"';
+        }
+        else {
+            $cl_opts->{name} = '/a:"' . "Growl::Tiny" . '" /r:"General Notification"';
+        }
+        if ($options->{priority}) {
+            $cl_opts->{priority} = '/p:' . $options->{priority};
+        }
+        if ($options->{sticky}) {
+            $cl_opts->{sticky} = '/s:true';
+        }
+        if ($options->{title}) {
+            $cl_opts->{title} = '/t:"' . $options->{title} . '"';
+        }
+    }
+    else {
+        $cl_opts->{host} = '-H ' . $host;
+        $cl_opts->{subject} = '-m ' . $options->{subject};
+
+        if ($options->{image}) {
+            $cl_opts->{image} = '--image ' . $options->{image};
+        }
+        if ($options->{name}) {        
+            $cl_opts->{name} = '-n ' . $options->{name};
+        }
+        else {
+            $cl_opts->{name} = '-n ' . "Growl::Tiny";
+        }
+        if ($options->{priority}) {
+            $cl_opts->{priority} = '-p ' . $options->{priority};
+        }
+        if ($options->{sticky}) {
+            $cl_opts->{sticky} = '-s';
+        }
+        if ($options->{title}) {
+            $cl_opts->{title} = '-t ' . $options->{title};
+        }
+    }
+
     #
     # build the command line options
     #
     my @command_line_args = ( $GROWL_COMMAND );
-
-    if ( $options->{sticky} ) {
-        push @command_line_args, '-s';
-    }
-
-    push @command_line_args, ( '-n', $options->{name} || 'Growl::Tiny' );
-
-    if ( $options->{priority} ) {
-        push @command_line_args, ( '-p', $options->{priority} );
-    }
-
-    my $host = $options->{host} || $ENV{GROWL_HOST};
-    if ( $host ) {
-        push @command_line_args, ( '-H', $host );
-    }
-
-    if ( $options->{image} ) {
-        push @command_line_args, ( '--image', $options->{image} );
-    }
-
-    push @command_line_args, ( '-m', $options->{subject} );
-
-    if ( $options->{title} ) {
-        push @command_line_args, ( '-t', $options->{title} );
-    }
+    push @command_line_args, $cl_opts->{name};
+    push @command_line_args, $cl_opts->{sticky} if $cl_opts->{sticky};
+    push @command_line_args, $cl_opts->{priority} if $cl_opts->{priority};
+    push @command_line_args, $cl_opts->{host} if $cl_opts->{host};
+    push @command_line_args, $cl_opts->{image} if $cl_opts->{image};
+    push @command_line_args, $cl_opts->{title} if $cl_opts->{title};
+    push @command_line_args, $cl_opts->{subject};
 
     #print "COMMAND: ", join " ", @command_line_args, "\n";
     return system( @command_line_args ) ? 0 : 1;
