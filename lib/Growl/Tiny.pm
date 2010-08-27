@@ -141,7 +141,7 @@ sub notify {
     #
     my $cl_opts = undef;
     if ( $^O =~ /Win/ ) {
-        $cl_opts->{host} = '/host:' . $host;
+        #$cl_opts->{host} = '/host:' . $host;
         $cl_opts->{subject} = '"' . $options->{subject} . '"';
         if ($options->{image}) {
             $cl_opts->{image} = '/i:"' . $options->{image} . '"';
@@ -163,17 +163,17 @@ sub notify {
         }
     }
     else {
-        $cl_opts->{host} = '-H ' . $host;
-        $cl_opts->{subject} = '-m ' . $options->{subject};
+        #$cl_opts->{host} = '-H ' . $host;
+        $cl_opts->{subject} = '-m "' . $options->{subject} . '"';
 
         if ($options->{image}) {
             $cl_opts->{image} = '--image ' . $options->{image};
         }
         if ($options->{name}) {        
-            $cl_opts->{name} = '-n ' . $options->{name};
+            $cl_opts->{name} = '-n "' . $options->{name} . '"';
         }
         else {
-            $cl_opts->{name} = '-n ' . "Growl::Tiny";
+            $cl_opts->{name} = '-n "Growl::Tiny"';
         }
         if ($options->{priority}) {
             $cl_opts->{priority} = '-p ' . $options->{priority};
@@ -182,7 +182,7 @@ sub notify {
             $cl_opts->{sticky} = '-s';
         }
         if ($options->{title}) {
-            $cl_opts->{title} = '-t ' . $options->{title};
+            $cl_opts->{title} = '-t "' . $options->{title} . '"';
         }
     }
 
@@ -199,7 +199,7 @@ sub notify {
     push @command_line_args, $cl_opts->{subject};
 
     #print "COMMAND: ", join " ", @command_line_args, "\n";
-    return system( @command_line_args ) ? 0 : 1;
+    return system( join(" ", @command_line_args) ) ? 0 : 1;
 }
 
 # for automated testing only
