@@ -7,8 +7,8 @@ our @EXPORT_OK = ( 'notify' );
 
 our $VERSION;
 
-#my $GROWL_COMMAND = "/usr/local/bin/growlnotify";
 my $GROWL_COMMAND = "growlnotify";
+$GROWL_COMMAND = '/usr/local/bin/growlnotify' if $^O !~ m{Win};
 
 #_* Libraries
 
@@ -18,7 +18,8 @@ use Carp;
 
 =head1 NAME
 
-Growl::Tiny - tiny perl module for sending Growl notifications on Mac OS X
+Growl::Tiny - tiny perl module for sending Growl notifications
+on Mac OS X or Windows
 
 
 =head1 SYNOPSIS
@@ -43,6 +44,12 @@ There are some limitations, please see the BUGS AND LIMITATIONS
 section below.  If these are a problem for you, please use Mac::Growl
 instead.
 
+Windows compatability has now been added as well.
+
+For windows, growlnotify must be downloaded from:
+  http://www.growlforwindows.com/gfw/help/growlnotify.aspx
+
+And the binaries must be added to a folder in your path.
 
 =cut
 
@@ -224,11 +231,20 @@ __END__
 
 =head1 DEPENDENCIES
 
+OSX:
+
 Growl (http://growl.info) must be installed locally.  You must also
 have the growlnotify script installed at:
 
     /usr/local/bin/growlnotify
 
+Windows:
+
+Growl for Windows must be installed:
+    http://www.growlforwindows.com
+
+In addition the Windows growlnotify command must be in your Path:
+    http://www.growlforwindows.com/gfw/help/growlnotify.aspx
 
 =head1 BUGS AND LIMITATIONS
 
