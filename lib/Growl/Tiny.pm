@@ -134,15 +134,17 @@ sub notify {
     # skip notifications with the 'quiet' flag set
     return if $options->{quiet};
 
-    my $host = $options->{host} || $ENV{GROWL_HOST} || 'localhost';
+    my $host = $options->{host} || $ENV{GROWL_HOST} || '';
 
     #
     # setup the option flags based on OS
     #
     my $cl_opts = undef;
     if ( $^O =~ /Win/ ) {
-        #$cl_opts->{host} = '/host:' . $host;
         $cl_opts->{subject} = '"' . $options->{subject} . '"';
+        if ($host) {
+            $cl_opts->{host} = '/host:' . $host;
+        }
         if ($options->{image}) {
             $cl_opts->{image} = '/i:"' . $options->{image} . '"';
         }
@@ -163,9 +165,10 @@ sub notify {
         }
     }
     else {
-        #$cl_opts->{host} = '-H ' . $host;
         $cl_opts->{subject} = '-m "' . $options->{subject} . '"';
-
+        if ($host) {
+            $cl_opts->{host} = '-H ' . $host;
+        }
         if ($options->{image}) {
             $cl_opts->{image} = '--image ' . $options->{image};
         }
